@@ -1,1 +1,227 @@
-{"code":{"__map":true,"values":[["1","const init = (() => {\n    const script = document.createElement(\"script\");\n    script.id = \"markdownit\";\n    script.src = \"./markdown-it.min.js\";\n    const promise = new Promise((resolve) => {\n      script.onload = () => {\n         resolve(window.markdownit);\n      };\n    });\n\n    document.head.querySelector(\"#markdownit\")?.remove();\n    document.head.appendChild(script);\n\n    const container = document.createElement(\"div\");\n    container.id = \"container\";\n    document.body.querySelector(\"#container\")?.remove();\n    document.body.appendChild(container);\n    container.innerHTML = `\n   <div id=\"result\"></div>\n   <div id=\"separator\"></div>\n   <div id=\"editorContainer\"></div>\n`.trim();\n    return {markdownit: promise, container};\n})();\n\nconst resolved = Events.resolvePart(init);\nconst md = resolved.markdownit({html: true});\nconst container = resolved.container;\nconst separator = container.querySelector(\"#separator\");\n"],["7","\nconst result = md.render(editorString);\n\nconst resultDiv = ((result, container) => {\n  const div = document.createElement(\"div\");\n  div.id = \"renkon\";\n  container.querySelector(\"#renkon\")?.remove();\n  container.querySelector(\"#result\").appendChild(div);\n  div.innerHTML = result;\n  return div;\n})(result, container);\n\nconst editor = newEditor(\"0\", \"\", callback, notify);\n\nconst callback = (id, update) => notify[0]({id, update});\nconst editorString = editorUpdate.update.state.doc.toString();\ncontainer.querySelector(\"#editorContainer\").appendChild(editor.dom);"],["12","const css = `\n#container, html, body {\n  width: 100%;\n  height: 100%;\n  margin: 0px;\n}\n\n#container {\n  display: flex;\n}\n\n#result {\n  width: calc(50% - 4px);\n  height: 100%;\n}\n\n#renkon: {\n  width: calc(50% - 4px);\n  height: 100%;\n}\n\n#separator {\n   width: 8px;\n   height: 100%;\n   background-color: #f8f8f8;\n}\n\n#separator:hover {\n   background-color: #e8e8e8;\n   cursor: ew-resize;\n}\n\n#editorContainer {\n   flex-grow: 1;\n   min-height: 100%;\n   height: fit-content;\n   border: 1px solid black;\n   padding: 6px;\n   white-space: pre-wrap;\n}\n\n`.trim();\n\n((css) => {\n    document.head.querySelector(\"#presenter-style\")?.remove();\n    const style = document.createElement(\"style\");\n    style.id = \"presenter-style\";\n    style.textContent = css;\n    document.head.appendChild(style);\n\n    document.head.querySelector(\"#separator-style\")?.remove();\n    const sepStyle = document.createElement(\"style\");\n    sepStyle.id = \"separator-style\";\n    document.head.appendChild(sepStyle);\n})(css);\n"],["16","const editorUpdate = Events.observe((callback) => {\n   notify[0] = (...v) => callback(...v);\n   return () => notify.shift();\n})\nconst notify = [];"],["20","const newEditor = (id, doc, callback) => {\n    const mirror = window.CodeMirror;\n    const editor = new mirror.EditorView({\n        doc: doc || `# Hello, Renkon`,\n\n        extensions: [\n            mirror.basicSetup,\n            mirror.EditorView.lineWrapping,\n            mirror.EditorView.updateListener.of((viewUpdate) => callback(id, viewUpdate)),\n            mirror.EditorView.editorAttributes.of({\"class\": \"editor\"}),\n            mirror.keymap.of([mirror.indentWithTab])\n        ],\n    });\n    editor.dom.id = `${id}-editor`;\n    return editor;\n};\n\n"],["24","const sepDown = Events.listener(\n   separator,\n   \"pointerdown\",\n   evt => evt);\n\nconst down = Events.collect(undefined, sepDown, (old, evt) => {\n  if (evt.isPrimary) {\n    evt.target.setPointerCapture(evt.pointerId);\n  }\n  return {type: \"sepDown\", x: evt.clientX};\n});\n\nconst up = Events.listener(\n  separator,\n  \"pointerup\",\n  (evt) => {\n    if (evt.isPrimary) {\n      evt.target.releasePointerCapture(evt.pointerId);\n    }\n    return {type: \"sepUp\"}\n  }\n);\n\nconst _sepMove = Events.listener(separator, \"pointermove\", moveCompute);\nconst downOrUp = Events.or(down, up);\n\nconst moveCompute = ((downOrUp) => {\n  if (downOrUp.type === \"sepDown\") {\n    return (move) => {\n      const newX = move.clientX;\n      document.head.querySelector(\"#separator-style\").textContent = `\n#result {\n    width: ${newX - 4}px;\n}`.trim();\n      return move;\n    }\n  } else {\n    return (move) => move;\n  }\n})(downOrUp);"]]},"padTitle":"presenter","positions":{"map":{"__map":true,"values":[["1",{"height":560.3013172439015,"id":"1","type":"move","width":506.99172896941633,"x":-624.6942766508495,"y":-339.4888898209503}],["7",{"height":359.95689512741274,"id":"7","type":"move","width":621.4223041367036,"x":579.4516023546995,"y":-338.9458873892997}],["12",{"height":1016.8863796303892,"id":"12","type":"move","width":543.7898097049671,"x":1262.905884448235,"y":-343.2775014048229}],["16",{"height":148.23680946208918,"id":"16","type":"move","width":612.7651907932437,"x":-85.07308289730561,"y":29.606845047675986}],["20",{"height":331.26071665034175,"id":"20","type":"move","width":585.6178979407063,"x":-75.89175148857228,"y":-341.26333858230873}],["24",{"height":783.4527050411832,"id":"24","type":"move","width":629.9112595413903,"x":-93.2059132364478,"y":223.73396758239303}]]}},"titles":{"map":{"__map":true,"values":[["1",{"id":"1","state":false,"title":"untitled"}],["7",{"id":"7","state":false,"title":"Rendering"}],["12",{"id":"12","state":false,"title":"CSS"}],["16",{"id":"16","state":false,"title":"editorString"}],["20",{"id":"20","state":false,"title":"newEditor"}],["24",{"id":"24","state":false,"title":"Separator"}]]}},"version":1,"windowTypes":{"map":{"__map":true,"values":[["1","code"],["7","code"],["12","code"],["16","code"],["20","code"],["24","code"]]}},"windows":["1","7","12","16","20","24"],"zIndex":{"map":{"__map":true,"values":[["1",106],["7",103],["12",110],["16",109],["20",105],["24",100]]}}}
+{"padTitle":"presenter",
+"positions":{"map":{"__map":true,
+"values":[["1",{"height":560.3013172439015,
+"id":"1",
+"type":"move",
+"width":506.99172896941633,
+"x":-624.6942766508495,
+"y":-339.4888898209503}],["7",{"height":359.95689512741274,
+"id":"7",
+"type":"move",
+"width":621.4223041367036,
+"x":579.4516023546995,
+"y":-338.9458873892997}],["12",{"height":1016.8863796303892,
+"id":"12",
+"type":"move",
+"width":543.7898097049671,
+"x":1262.905884448235,
+"y":-343.2775014048229}],["16",{"height":148.23680946208918,
+"id":"16",
+"type":"move",
+"width":612.7651907932437,
+"x":-85.07308289730561,
+"y":29.606845047675986}],["20",{"height":331.26071665034175,
+"id":"20",
+"type":"move",
+"width":585.6178979407063,
+"x":-75.89175148857228,
+"y":-341.26333858230873}],["24",{"height":824.5861600103491,
+"id":"24",
+"type":"resize",
+"width":625.3434197048479,
+"x":579.3525256046628,
+"y":64.52829083474299}],["36",{"height":400,
+"id":"36",
+"type":"move",
+"width":800,
+"x":-1357.1688306654235,
+"y":-122.42092882253161}]]}},
+"titles":{"map":{"__map":true,
+"values":[["1",{"id":"1",
+"state":false,
+"title":"untitled"}],["7",{"id":"7",
+"state":false,
+"title":"Rendering"}],["12",{"id":"12",
+"state":false,
+"title":"CSS"}],["16",{"id":"16",
+"state":false,
+"title":"editorString"}],["20",{"id":"20",
+"state":false,
+"title":"newEditor"}],["24",{"id":"24",
+"state":false,
+"title":"Separator"}],["36",{"id":"36",
+"state":false,
+"title":"untitled"}]]}},
+"version":2,
+"windowTypes":{"map":{"__map":true,
+"values":[["1","code"],["7","code"],["12","code"],["16","code"],["20","code"],["24","code"],["36","runner"]]}},
+"windows":["1","7","12","16","20","24","36"],
+"zIndex":{"map":{"__map":true,
+"values":[["1",106],["7",103],["12",110],["16",109],["20",105],["24",111],["36",112]]}}}
+{__codeMap: true, value: [[`1`, `const init = (() => {
+    const script = document.createElement("script");
+    script.id = "markdownit";
+    script.src = "./markdown-it.min.js";
+    const promise = new Promise((resolve) => {
+      script.onload = () => {
+         resolve(window.markdownit);
+      };
+    });
+
+    document.head.querySelector("#markdownit")?.remove();
+    document.head.appendChild(script);
+
+    const container = document.createElement("div");
+    container.id = "container";
+    document.body.querySelector("#container")?.remove();
+    document.body.appendChild(container);
+    container.innerHTML = \`
+   <div id="result"></div>
+   <div id="separator"></div>
+   <div id="editorContainer"></div>
+\`.trim();
+    return {markdownit: promise, container};
+})();
+
+const resolved = Events.resolvePart(init);
+const md = resolved.markdownit({html: true});
+const container = resolved.container;
+const separator = container.querySelector("#separator");
+`],
+[`7`, `
+const result = md.render(editorString);
+
+const resultDiv = ((result, container) => {
+  const div = document.createElement("div");
+  div.id = "renkon";
+  container.querySelector("#renkon")?.remove();
+  container.querySelector("#result").appendChild(div);
+  div.innerHTML = result;
+  return div;
+})(result, container);
+
+const editor = newEditor("0", "", callback, notify);
+
+const callback = (id, update) => notify[0]({id, update});
+const editorString = editorUpdate.update.state.doc.toString();
+container.querySelector("#editorContainer").appendChild(editor.dom);`],
+[`12`, `const css = \`
+#container, html, body {
+  width: 100%;
+  height: 100%;
+  margin: 0px;
+}
+
+#container {
+  display: flex;
+}
+
+#result {
+  height: 100%;
+}
+
+#renkon {
+  height: 100%;
+}
+
+#separator {
+   width: 8px;
+   min-width: 8px;
+   height: 100%;
+   background-color: #f8f8f8;
+}
+
+#separator:hover {
+   background-color: #e8e8e8;
+   cursor: ew-resize;
+}
+
+#editorContainer {
+  flex-grow: 1;
+   min-height: 100%;
+   height: fit-content;
+   border: 1px solid black;
+   padding: 6px;
+   min-width: 0px;
+   background-color: white;
+   white-space: pre-wrap;
+}
+
+\`.trim();
+
+((css) => {
+    document.head.querySelector("#presenter-style")?.remove();
+    const style = document.createElement("style");
+    style.id = "presenter-style";
+    style.textContent = css;
+    document.head.appendChild(style);
+
+    document.head.querySelector("#separator-style")?.remove();
+    const sepStyle = document.createElement("style");
+    sepStyle.id = "separator-style";
+    document.head.appendChild(sepStyle);
+})(css);
+`],
+[`16`, `const editorUpdate = Events.observe((callback) => {
+   notify[0] = (...v) => callback(...v);
+   return () => notify.shift();
+})
+const notify = [];`],
+[`20`, `const newEditor = (id, doc, callback) => {
+    const mirror = window.CodeMirror;
+    const editor = new mirror.EditorView({
+        doc: doc || \`# Hello, Renkon\`,
+
+        extensions: [
+            mirror.basicSetup,
+            mirror.EditorView.lineWrapping,
+            mirror.EditorView.updateListener.of((viewUpdate) => callback(id, viewUpdate)),
+            mirror.EditorView.editorAttributes.of({"class": "editor"}),
+            mirror.keymap.of([mirror.indentWithTab])
+        ],
+    });
+    editor.dom.id = \`\${id}-editor\`;
+    return editor;
+};
+
+`],
+[`24`, `const sepDown = Events.listener(
+   separator,
+   "pointerdown",
+   evt => evt);
+
+const down = Events.collect(undefined, sepDown, (old, evt) => {
+  if (evt.isPrimary) {
+    evt.target.setPointerCapture(evt.pointerId);
+  }
+  return {type: "sepDown", x: evt.clientX};
+});
+
+const up = Events.listener(
+  separator,
+  "pointerup",
+  (evt) => {
+    if (evt.isPrimary) {
+      evt.target.releasePointerCapture(evt.pointerId);
+    }
+    return {type: "sepUp"}
+  }
+);
+
+const _sepMove = Events.listener(separator, "pointermove", moveCompute);
+const downOrUp = Events.or(down, up);
+
+const moveCompute = ((downOrUp) => {
+  if (downOrUp.type === "sepDown") {
+    return (move) => {
+      const newX = move.clientX;
+      document.head.querySelector("#separator-style").textContent = \`
+#renkon {
+    width: \${Math.min(window.innerWidth - 8, Math.max(newX - 8, 0))}px;
+}\`.trim();
+      return move;
+    }
+  } else {
+    return (move) => move;
+  }
+})(downOrUp);`]]}
