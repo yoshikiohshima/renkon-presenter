@@ -1,9 +1,9 @@
 {"padTitle":"presenter",
 "positions":{"map":{"__map":true,
-"values":[["1",{"height":560.3013172439015,
+"values":[["1",{"height":601.5445379350548,
 "id":"1",
-"type":"move",
-"width":506.99172896941633,
+"type":"resize",
+"width":508.68612832554214,
 "x":-624.6942766508495,
 "y":-339.4888898209503}],["7",{"height":359.95689512741274,
 "id":"7",
@@ -30,12 +30,7 @@
 "type":"resize",
 "width":625.3434197048479,
 "x":579.3525256046628,
-"y":64.52829083474299}],["36",{"height":400,
-"id":"36",
-"type":"move",
-"width":800,
-"x":-1357.1688306654235,
-"y":-122.42092882253161}]]}},
+"y":64.52829083474299}]]}},
 "titles":{"map":{"__map":true,
 "values":[["1",{"id":"1",
 "state":false,
@@ -49,9 +44,7 @@
 "state":false,
 "title":"newEditor"}],["24",{"id":"24",
 "state":false,
-"title":"Separator"}],["36",{"id":"36",
-"state":false,
-"title":"untitled"}]]}},
+"title":"Separator"}]]}},
 "version":2,
 "windowEnabled":{"map":{"__map":true,
 "values":[["1",{"enabled":true,
@@ -60,17 +53,16 @@
 "id":"12"}],["16",{"enabled":true,
 "id":"16"}],["20",{"enabled":true,
 "id":"20"}],["24",{"enabled":true,
-"id":"24"}],["36",{"enabled":true,
-"id":"36"}]]}},
+"id":"24"}]]}},
 "windowTypes":{"map":{"__map":true,
-"values":[["1","code"],["7","code"],["12","code"],["16","code"],["20","code"],["24","code"],["36","runner"]]}},
-"windows":["1","7","12","16","20","24","36"],
+"values":[["1","code"],["7","code"],["12","code"],["16","code"],["20","code"],["24","code"]]}},
+"windows":["1","7","12","16","20","24"],
 "zIndex":{"map":{"__map":true,
-"values":[["1",106],["7",103],["12",110],["16",109],["20",105],["24",111],["36",112]]}}}
+"values":[["1",106],["7",103],["12",110],["16",109],["20",105],["24",111]]}}}
 {__codeMap: true, value: [[`1`, `const init = (() => {
     const script = document.createElement("script");
     script.id = "markdownit";
-    script.src = "./markdown-it.min.js";
+    script.src = "https://yoshikiohshima.github.io/renkon-presenter/markdown-it.min.js";
     const promise = new Promise((resolve) => {
       script.onload = () => {
          resolve(window.markdownit);
@@ -92,7 +84,7 @@
     return {markdownit: promise, container};
 })();
 
-const resolved = Events.resolvePart(init);
+const resolved = Behaviors.resolvePart(init);
 const md = resolved.markdownit({html: true});
 const container = resolved.container;
 const separator = container.querySelector("#separator");
