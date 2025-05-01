@@ -5,10 +5,10 @@
 "type":"move",
 "width":508.68612832554214,
 "x":-673.3372721612036,
-"y":-335.63670023188837}],["7",{"height":371.79962951172723,
+"y":-335.63670023188837}],["7",{"height":351.7920080153346,
 "id":"7",
-"type":"move",
-"width":565.8783069644205,
+"type":"resize",
+"width":565.6258448635197,
 "x":622.7869987051395,
 "y":-344.73527569843395}],["12",{"height":1132.8409199571827,
 "id":"12",
@@ -25,15 +25,15 @@
 "type":"resize",
 "width":637.1751870914861,
 "x":-75.89175148857228,
-"y":-341.26333858230873}],["24",{"height":1003.109888285444,
+"y":-341.26333858230873}],["24",{"height":967.92929452491,
 "id":"24",
-"type":"move",
-"width":638.8706777758463,
+"type":"resize",
+"width":636.2871489432943,
 "x":623.5661705702177,
-"y":76.88064794983097}],["51",{"height":967.5990818785003,
+"y":76.88064794983097}],["51",{"height":1001.4079648908063,
 "id":"51",
 "type":"resize",
-"width":668.8526380302586,
+"width":671.246820287135,
 "x":-91.2401830814011,
 "y":264.0353093024016}]]}},
 "titles":{"map":{"__map":true,
@@ -228,7 +228,6 @@ const moveCompute = ((downOrUp) => {
       const newRenkonWidth = Math.min(window.innerWidth - 8, Math.max(newX - 8, 0));
       const newEditorWidth = Math.max(window.innerWidth - 22 - newRenkonWidth, 60);
       const right = newEditorWidth === 60 ? -60 - 16 + (window.innerWidth - newX) : 0;
-      console.log(right);
 
       document.head.querySelector("#separator-style").textContent = \`
 #renkon {
@@ -266,6 +265,8 @@ const keyHandler = (evt) => {
     ...resultDiv.querySelectorAll("h2"),
     ...resultDiv.querySelectorAll("h3")
   ];
+
+  sections.sort((a, b) => a.getBoundingClientRect().top - b.getBoundingClientRect().top);
   let found;
   if (evt.key === "ArrowDown") {
     for (const section of sections) {
@@ -292,7 +293,7 @@ const keyHandler = (evt) => {
   const result = container.querySelector("#result");
   if (!result) {return;}
   const resultRect = result.getBoundingClientRect();
-    console.log("scroll top before", result.scrollTop, found.getBoundingClientRect().top)
+  //  console.log("scroll top before", result.scrollTop, found.getBoundingClientRect().top)
   result.scrollTop += found.getBoundingClientRect().top;
-  console.log("scroll top after", result.scrollTop)
+  // console.log("scroll top after", result.scrollTop)
 };`]]}
