@@ -15,10 +15,10 @@
 "type":"move",
 "width":542.5328333992635,
 "x":1328.9710674756918,
-"y":-344.765333969504}],["16",{"height":148.0348808413451,
+"y":-344.765333969504}],["16",{"height":162.6336348920213,
 "id":"16",
-"type":"move",
-"width":606.7466212524008,
+"type":"resize",
+"width":647.2166649069342,
 "x":-84.30487765866869,
 "y":56.64951071466884}],["20",{"height":347.0888520378802,
 "id":"20",
@@ -126,7 +126,9 @@ container.querySelector("#editorContainer").appendChild(editor.dom);`],
 
 #result {
   height: 100%;
+  width: calc(100% - 220px);
   overflow: scroll;
+  scroll-behavior: smooth;
 }
 
 #renkon {
@@ -150,6 +152,7 @@ container.querySelector("#editorContainer").appendChild(editor.dom);`],
   right: 0px;
   min-height: 100%;
   height: 100%;
+  width: 200px;
   border: 1px solid black;
   padding: 6px;
   min-width: 0px;
@@ -230,7 +233,7 @@ const moveCompute = ((downOrUp) => {
       const right = newEditorWidth === 60 ? -60 - 16 + (window.innerWidth - newX) : 0;
 
       document.head.querySelector("#separator-style").textContent = \`
-#renkon {
+#result {
     width: \${newRenkonWidth}px;
 }
 #editorContainer {
@@ -245,25 +248,29 @@ const moveCompute = ((downOrUp) => {
     return (move) => move;
   }
 })(downOrUp);`],
-[`51`, `const key = Events.listener(document.body, "keydown", keyHandler);
+[`51`, `// const key = Events.listener(document.body, "keydown", keyHandler);
 
-/*
+
 const key = Events.observe((notify) => {
-  const handler = evt => notify(evt);
+  const handler = evt => {
+    if (evt.target !== document.body) {return;}
+    if (evt.key !== "ArrowUp" && evt.key !== "ArrowDown") {return;}
+    evt.preventDefault();
+    notify(evt);
+  };
   document.body.addEventListener("keydown", handler);
   return () => document.body.removeEventListener("keydown", handler);
 });
-*/
 
-const keyHandler = (evt) => {
+
+const keyHandler = ((evt) => {
   if (evt.target !== document.body) {return;}
 
   if (evt.key !== "ArrowUp" && evt.key !== "ArrowDown") {return;}
 
   const sections = [
     ...resultDiv.querySelectorAll("h1"),
-    ...resultDiv.querySelectorAll("h2"),
-    ...resultDiv.querySelectorAll("h3")
+    ...resultDiv.querySelectorAll("h2")
   ];
 
   sections.sort((a, b) => a.getBoundingClientRect().top - b.getBoundingClientRect().top);
@@ -296,4 +303,4 @@ const keyHandler = (evt) => {
   //  console.log("scroll top before", result.scrollTop, found.getBoundingClientRect().top)
   result.scrollTop += found.getBoundingClientRect().top;
   // console.log("scroll top after", result.scrollTop)
-};`]]}
+})(key);`]]}
