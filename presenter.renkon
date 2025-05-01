@@ -2,49 +2,56 @@
 "positions":{"map":{"__map":true,
 "values":[["1",{"height":601.5445379350548,
 "id":"1",
-"type":"resize",
+"type":"move",
 "width":508.68612832554214,
-"x":-624.6942766508495,
-"y":-339.4888898209503}],["7",{"height":359.95689512741274,
+"x":-673.3372721612036,
+"y":-335.63670023188837}],["7",{"height":371.79962951172723,
 "id":"7",
 "type":"move",
-"width":621.4223041367036,
-"x":579.4516023546995,
-"y":-338.9458873892997}],["12",{"height":1016.8863796303892,
+"width":565.8783069644205,
+"x":622.7869987051395,
+"y":-344.73527569843395}],["12",{"height":1132.8409199571827,
 "id":"12",
 "type":"move",
-"width":543.7898097049671,
-"x":1262.905884448235,
-"y":-343.2775014048229}],["16",{"height":148.23680946208918,
+"width":542.5328333992635,
+"x":1328.9710674756918,
+"y":-344.765333969504}],["16",{"height":148.0348808413451,
 "id":"16",
 "type":"move",
-"width":612.7651907932437,
-"x":-85.07308289730561,
-"y":29.606845047675986}],["20",{"height":331.26071665034175,
+"width":606.7466212524008,
+"x":-84.30487765866869,
+"y":56.64951071466884}],["20",{"height":347.0888520378802,
 "id":"20",
-"type":"move",
-"width":585.6178979407063,
-"x":-75.89175148857228,
-"y":-341.26333858230873}],["24",{"height":824.5861600103491,
-"id":"24",
 "type":"resize",
-"width":625.3434197048479,
-"x":579.3525256046628,
-"y":64.52829083474299}]]}},
+"width":637.1751870914861,
+"x":-75.89175148857228,
+"y":-341.26333858230873}],["24",{"height":1003.109888285444,
+"id":"24",
+"type":"move",
+"width":638.8706777758463,
+"x":623.5661705702177,
+"y":76.88064794983097}],["51",{"height":967.5990818785003,
+"id":"51",
+"type":"resize",
+"width":668.8526380302586,
+"x":-91.2401830814011,
+"y":264.0353093024016}]]}},
 "titles":{"map":{"__map":true,
 "values":[["1",{"id":"1",
 "state":false,
-"title":"untitled"}],["7",{"id":"7",
+"title":"Initialization"}],["7",{"id":"7",
 "state":false,
 "title":"Rendering"}],["12",{"id":"12",
 "state":false,
 "title":"CSS"}],["16",{"id":"16",
 "state":false,
-"title":"editorString"}],["20",{"id":"20",
+"title":"editorUpdate"}],["20",{"id":"20",
 "state":false,
 "title":"newEditor"}],["24",{"id":"24",
 "state":false,
-"title":"Separator"}]]}},
+"title":"Separator"}],["51",{"id":"51",
+"state":false,
+"title":"Scroll"}]]}},
 "version":2,
 "windowEnabled":{"map":{"__map":true,
 "values":[["1",{"enabled":true,
@@ -53,12 +60,13 @@
 "id":"12"}],["16",{"enabled":true,
 "id":"16"}],["20",{"enabled":true,
 "id":"20"}],["24",{"enabled":true,
-"id":"24"}]]}},
+"id":"24"}],["51",{"enabled":true,
+"id":"51"}]]}},
 "windowTypes":{"map":{"__map":true,
-"values":[["1","code"],["7","code"],["12","code"],["16","code"],["20","code"],["24","code"]]}},
-"windows":["1","7","12","16","20","24"],
+"values":[["1","code"],["7","code"],["12","code"],["16","code"],["20","code"],["24","code"],["51","code"]]}},
+"windows":["1","7","12","16","20","24","51"],
 "zIndex":{"map":{"__map":true,
-"values":[["1",106],["7",103],["12",110],["16",109],["20",105],["24",111]]}}}
+"values":[["1",103],["7",112],["12",113],["16",110],["20",105],["24",111],["51",106]]}}}
 {__codeMap: true, value: [[`1`, `const init = (() => {
     const script = document.createElement("script");
     script.id = "markdownit";
@@ -89,19 +97,18 @@ const md = resolved.markdownit({html: true});
 const container = resolved.container;
 const separator = container.querySelector("#separator");
 `],
-[`7`, `
-const result = md.render(editorString);
+[`7`, `const result = md.render(editorString);
 
-const resultDiv = ((result, container) => {
+const resultDiv = Behaviors.keep(((result, container) => {
   const div = document.createElement("div");
   div.id = "renkon";
   container.querySelector("#renkon")?.remove();
   container.querySelector("#result").appendChild(div);
   div.innerHTML = result;
   return div;
-})(result, container);
+})(result, container));
 
-const editor = newEditor("0", "", callback, notify);
+const editor = newEditor("0", \`\`, callback, notify);
 
 const callback = (id, update) => notify[0]({id, update});
 const editorString = editorUpdate.update.state.doc.toString();
@@ -119,6 +126,7 @@ container.querySelector("#editorContainer").appendChild(editor.dom);`],
 
 #result {
   height: 100%;
+  overflow: scroll;
 }
 
 #renkon {
@@ -138,14 +146,16 @@ container.querySelector("#editorContainer").appendChild(editor.dom);`],
 }
 
 #editorContainer {
-  flex-grow: 1;
-   min-height: 100%;
-   height: fit-content;
-   border: 1px solid black;
-   padding: 6px;
-   min-width: 0px;
-   background-color: white;
-   white-space: pre-wrap;
+  position: fixed;
+  right: 0px;
+  min-height: 100%;
+  height: 100%;
+  border: 1px solid black;
+  padding: 6px;
+  min-width: 0px;
+  background-color: white;
+  white-space: pre-wrap;
+  overflow: scroll;
 }
 
 \`.trim();
@@ -184,7 +194,6 @@ const notify = [];`],
     editor.dom.id = \`\${id}-editor\`;
     return editor;
 };
-
 `],
 [`24`, `const sepDown = Events.listener(
    separator,
@@ -216,13 +225,74 @@ const moveCompute = ((downOrUp) => {
   if (downOrUp.type === "sepDown") {
     return (move) => {
       const newX = move.clientX;
+      const newRenkonWidth = Math.min(window.innerWidth - 8, Math.max(newX - 8, 0));
+      const newEditorWidth = Math.max(window.innerWidth - 22 - newRenkonWidth, 60);
+      const right = newEditorWidth === 60 ? -60 - 16 + (window.innerWidth - newX) : 0;
+      console.log(right);
+
       document.head.querySelector("#separator-style").textContent = \`
 #renkon {
-    width: \${Math.min(window.innerWidth - 8, Math.max(newX - 8, 0))}px;
-}\`.trim();
+    width: \${newRenkonWidth}px;
+}
+#editorContainer {
+    width: \${newEditorWidth}px;
+    right: \${right}px;
+}
+
+\`.trim();
       return move;
     }
   } else {
     return (move) => move;
   }
-})(downOrUp);`]]}
+})(downOrUp);`],
+[`51`, `const key = Events.listener(document.body, "keydown", keyHandler);
+
+/*
+const key = Events.observe((notify) => {
+  const handler = evt => notify(evt);
+  document.body.addEventListener("keydown", handler);
+  return () => document.body.removeEventListener("keydown", handler);
+});
+*/
+
+const keyHandler = (evt) => {
+  if (evt.target !== document.body) {return;}
+
+  if (evt.key !== "ArrowUp" && evt.key !== "ArrowDown") {return;}
+
+  const sections = [
+    ...resultDiv.querySelectorAll("h1"),
+    ...resultDiv.querySelectorAll("h2"),
+    ...resultDiv.querySelectorAll("h3")
+  ];
+  let found;
+  if (evt.key === "ArrowDown") {
+    for (const section of sections) {
+      const rect = section.getBoundingClientRect();
+      if (rect.top >= 20) {
+        found = section;
+        break;
+      }
+    }
+  } else if (evt.key === "ArrowUp") {
+    for (let ind = sections.length - 1; ind >= 0; ind--) {
+      const section = sections[ind];
+      const rect = section.getBoundingClientRect();
+      if (rect.top < -5) {
+        found = section;
+        break;
+      }
+    }    
+  }
+  if (!found) {return;}
+
+  evt.preventDefault();
+
+  const result = container.querySelector("#result");
+  if (!result) {return;}
+  const resultRect = result.getBoundingClientRect();
+    console.log("scroll top before", result.scrollTop, found.getBoundingClientRect().top)
+  result.scrollTop += found.getBoundingClientRect().top;
+  console.log("scroll top after", result.scrollTop)
+};`]]}
