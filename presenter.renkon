@@ -10,12 +10,12 @@
 "type":"resize",
 "width":565.6258448635197,
 "x":622.7869987051395,
-"y":-344.73527569843395}],["12",{"height":1132.8409199571827,
+"y":-344.73527569843395}],["12",{"height":1204.179859155326,
 "id":"12",
 "type":"move",
-"width":542.5328333992635,
-"x":1328.9710674756918,
-"y":-344.765333969504}],["16",{"height":162.6336348920213,
+"width":603.2551175328266,
+"x":1544.4020387537512,
+"y":-359.37463574145613}],["16",{"height":162.6336348920213,
 "id":"16",
 "type":"resize",
 "width":647.2166649069342,
@@ -25,15 +25,15 @@
 "type":"resize",
 "width":637.1751870914861,
 "x":-75.89175148857228,
-"y":-341.26333858230873}],["24",{"height":967.92929452491,
+"y":-341.26333858230873}],["24",{"height":1389.313887199717,
 "id":"24",
 "type":"resize",
-"width":636.2871489432943,
+"width":846.6118356445409,
 "x":623.5661705702177,
-"y":76.88064794983097}],["51",{"height":1001.4079648908063,
+"y":76.88064794983097}],["51",{"height":1074.8485356554809,
 "id":"51",
 "type":"resize",
-"width":671.246820287135,
+"width":674.2043744610681,
 "x":-91.2401830814011,
 "y":264.0353093024016}]]}},
 "titles":{"map":{"__map":true,
@@ -222,10 +222,11 @@ const up = Events.listener(
 );
 
 const _sepMove = Events.listener(separator, "pointermove", moveCompute);
-const downOrUp = Events.or(down, up);
+const downOrUp = Events.or(down, up, resize);
 
-const moveCompute = ((downOrUp) => {
-  if (downOrUp.type === "sepDown") {
+const moveCompute = Behaviors.select(
+  evt => evt,
+  down, (_old, down) => {
     return (move) => {
       const newX = move.clientX;
       const newRenkonWidth = Math.min(window.innerWidth - 8, Math.max(newX - 8, 0));
@@ -234,20 +235,39 @@ const moveCompute = ((downOrUp) => {
 
       document.head.querySelector("#separator-style").textContent = \`
 #result {
-    width: \${newRenkonWidth}px;
+  width: \${newRenkonWidth}px;
 }
 #editorContainer {
-    width: \${newEditorWidth}px;
-    right: \${right}px;
+  width: \${newEditorWidth}px;
+  right: \${right}px;
 }
 
 \`.trim();
       return move;
     }
-  } else {
-    return (move) => move;
+  },
+  up, (_old, _up) => (move) => move,
+  resize, (old, resize) => {
+    const newX = window.innerWidth - 22;
+    const newEditorWidth = 60;
+    const right = -60;
+      document.head.querySelector("#separator-style").textContent = \`
+#result {
+  width: \${newX}px;
+}
+
+#editorContainer {
+  width: \${newEditorWidth}px;
+  right: \${right}px;
+}
+
+\`.trim();
+    return old;
   }
-})(downOrUp);`],
+);
+
+const resize = Events.listener(window, "resize", (evt) => ({type: "resize"}));
+`],
 [`51`, `// const key = Events.listener(document.body, "keydown", keyHandler);
 
 
