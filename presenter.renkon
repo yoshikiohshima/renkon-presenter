@@ -25,10 +25,10 @@
 "type":"resize",
 "width":637.1751870914861,
 "x":-75.89175148857228,
-"y":-341.26333858230873}],["24",{"height":1389.313887199717,
+"y":-341.26333858230873}],["24",{"height":1301.1567654748303,
 "id":"24",
 "type":"resize",
-"width":846.6118356445409,
+"width":688.1243303814214,
 "x":623.5661705702177,
 "y":76.88064794983097}],["51",{"height":1074.8485356554809,
 "id":"51",
@@ -222,7 +222,6 @@ const up = Events.listener(
 );
 
 const _sepMove = Events.listener(separator, "pointermove", moveCompute);
-const downOrUp = Events.or(down, up, resize);
 
 const moveCompute = Behaviors.select(
   evt => evt,
