@@ -70,7 +70,7 @@
 {__codeMap: true, value: [[`1`, `const init = (() => {
     const script = document.createElement("script");
     script.id = "markdownit";
-    script.src = "https://yoshikiohshima.github.io/renkon-presenter/markdown-it.min.js";
+    script.src = "./markdown-it.min.js";
     const promise = new Promise((resolve) => {
       script.onload = () => {
          resolve(window.markdownit);
