@@ -43,7 +43,7 @@ img {
 
 ## Motivation
 
-- A Local AI project called Project Substrate.
+- A local AI project called **Project Substrate**.
 - Create a programming environment that can be improved by humans and AI models.
 - Clear a bad rap around FRP by showing that it can support a dynamically modifiable self-sustained environment.
 
@@ -54,7 +54,7 @@ img {
 - Borrow syntax from JavaScript.
 - Free variables become dependencies for a <b>node</b> in the reactive network.
 - Separation between behaviors on the continuous time domain and events on the discrete domain: A very good thing!
-- A sound foundation to build a data-flow execution model.
+- A sound foundation to build a data-flow based programming environment.
 
 <div class="pagebreak"></div>
 
@@ -119,8 +119,7 @@ const up = Events.listener(
 const down = Events.listener(
   realDom.querySelector("#down"),
   "click",
-  evt => evt
-);
+  evt => evt);
 const upOrDown = Events.or(up, down);
 console.log(upOrDown);
 ```
@@ -129,7 +128,7 @@ console.log(upOrDown);
 
 ## Renkon: Behaviors.collect()
 
-### analogical to the "fby" construct in some other languages.
+### analogical to the "fby" construct in some other synchronous languages.
 
 ```
 const data = Behaviors.collect([],
@@ -149,7 +148,7 @@ const collection = Behaviors.select([],
 
 <div class="pagebreak"></div>
 
-## Renkon: Cyclic Dependency
+## Renkon: Ways to break Cyclic Dependencies
 
 ### There are three ways to accommodate some kind of cyclic dependency
 
@@ -221,13 +220,14 @@ const responses = Behaviors.collect(
 
 ## Renkon-pad: Implementation
 
-- Data Structure: windows, positions, windowTypes, titles, etc.
-  --  properties are composed in "side-ways"
+- Data Structure: windows, positions, windowTypes, titles, etc. Properties are composed in "side-ways"
+- Initialization
 - User Interaction: click buttons, pointer move, etc.
 - Rendering
 - Saving and Loading
-- CSS
+- New Component
 - Dataflow visualization
+- CSS
 
 <div class="pagebreak"></div>
 
@@ -327,6 +327,14 @@ Events.listener(document.body, "gesturestart", preventDefaultSafari);
 <div class="pagebreak"></div>
 
 ## Demo (4): Rotating Windows
+
+<div class="pagebreak"></div>
+
+## Demo (5): Markdown Editor
+
+<div class="pagebreak"></div>
+
+## Demo (6): Rhythm Game
 
 <div class="pagebreak"></div>
 
