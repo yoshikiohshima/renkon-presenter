@@ -332,9 +332,13 @@ Events.listener(document.body, "gesturestart", preventDefaultSafari);
 
 ## Demo (5): Markdown Editor
 
+<code><pre>https://yoshikiohshima.github.io/renkon-presenter/presenter.html</pre></code>
+
 <div class="pagebreak"></div>
 
 ## Demo (6): Rhythm Game
+
+<code><pre>https://yoshikiohshima.github.io/renkon-garupa/garupa.html</pre></code>
 
 <div class="pagebreak"></div>
 
