@@ -43,6 +43,7 @@ img {
 
 ## Motivation
 
+- A Local AI project called Project Substrate.
 - Create a programming environment that can be improved by humans and AI models.
 - Clear a bad rap around FRP by showing that it can support a dynamically modifiable self-sustained environment.
 
@@ -51,7 +52,7 @@ img {
 ## Renkon: An FRP Language
 
 - Borrow syntax from JavaScript.
-- Free variables become dependencies for a node..
+- Free variables become dependencies for a <b>node</b> in the reactive network.
 - Separation between behaviors on the continuous time domain and events on the discrete domain: A very good thing!
 - A sound foundation to build a data-flow execution model.
 
@@ -84,10 +85,10 @@ const _adder = ((timer) => {
 ## Renkon: Preact Virtual DOM
 
 ``` JavaScript
-const {html, render} = import("./preact.standalone.module.js");
+const {h, render} = import("./preact.standalone.module.js");
 
 const timer = Events.timer(1000);
-const dom = html`<button>${timer}</button>`;
+const dom = h("button", {}, timer);
 render(dom, document.body);
 ```
 
@@ -240,7 +241,7 @@ const responses = Behaviors.collect(
 
 ## Renkon-pad: Data Structure (2)
 
-<img src="data-1.png"/>
+<img style="width: 25%" src="data-1.png"/>
 
 <div style="margin-left: auto; margin-right:auto; border: 1px solid black; width: fit-content">
 <code>
@@ -331,7 +332,7 @@ Events.listener(document.body, "gesturestart", preventDefaultSafari);
 
 ## Future Work:
 
-- Better handling TypeScript
+- Better integration with lint by writing custome rules for Renkon.
 - LLM integration
 
 <div class="pagebreak"></div>
