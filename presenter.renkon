@@ -191,7 +191,7 @@ const notify = [];`],
             mirror.EditorView.lineWrapping,
             mirror.EditorView.updateListener.of((viewUpdate) => callback(id, viewUpdate)),
             mirror.EditorView.editorAttributes.of({"class": "editor"}),
-            mirror.keymap.of([mirror.indentWithTab])
+            mirror.view.keymap.of([mirror.commands.indentWithTab])
         ],
     });
     editor.dom.id = \`\${id}-editor\`;
