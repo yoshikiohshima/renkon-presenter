@@ -1,26 +1,26 @@
 {"padTitle":"presenter",
 "positions":{"map":{"__map":true,
-"values":[["1",{"height":601.5445379350548,
+"values":[["1",{"height":683.8798866117842,
 "id":"1",
 "type":"move",
-"width":508.68612832554214,
-"x":-673.3372721612036,
-"y":-335.63670023188837}],["7",{"height":351.7920080153346,
+"width":530.5693771255451,
+"x":-672.9385205805022,
+"y":-346.2861174475163}],["7",{"height":375.5383521488265,
 "id":"7",
-"type":"resize",
-"width":565.6258448635197,
-"x":622.7869987051395,
-"y":-344.73527569843395}],["12",{"height":1204.179859155326,
+"type":"move",
+"width":673.5775227975352,
+"x":627.752471466846,
+"y":-350.106756994686}],["12",{"height":1509.800452892262,
 "id":"12",
 "type":"move",
-"width":603.2551175328266,
-"x":1544.4020387537512,
-"y":-359.37463574145613}],["16",{"height":162.6336348920213,
+"width":626.5377424784541,
+"x":1456.291385079744,
+"y":-352.09405600108335}],["16",{"height":162.6336348920213,
 "id":"16",
-"type":"resize",
+"type":"move",
 "width":647.2166649069342,
 "x":-84.30487765866869,
-"y":56.64951071466884}],["20",{"height":347.0888520378802,
+"y":57.646389666422266}],["20",{"height":347.0888520378802,
 "id":"20",
 "type":"resize",
 "width":637.1751870914861,
@@ -32,10 +32,15 @@
 "x":623.5661705702177,
 "y":76.88064794983097}],["51",{"height":1074.8485356554809,
 "id":"51",
-"type":"resize",
+"type":"move",
 "width":674.2043744610681,
-"x":-91.2401830814011,
-"y":264.0353093024016}]]}},
+"x":-116.7190340827679,
+"y":288.1185297713136}],["54",{"height":891.2879516880103,
+"id":"54",
+"type":"resize",
+"width":663.0255536124862,
+"x":2179.512993101045,
+"y":-353.48465933608566}]]}},
 "titles":{"map":{"__map":true,
 "values":[["1",{"id":"1",
 "state":false,
@@ -51,8 +56,10 @@
 "state":false,
 "title":"Separator"}],["51",{"id":"51",
 "state":false,
-"title":"Scroll"}]]}},
-"version":2,
+"title":"Scroll"}],["54",{"id":"54",
+"state":false,
+"title":"Save and Load"}]]}},
+"version":3,
 "windowEnabled":{"map":{"__map":true,
 "values":[["1",{"enabled":true,
 "id":"1"}],["7",{"enabled":true,
@@ -61,12 +68,13 @@
 "id":"16"}],["20",{"enabled":true,
 "id":"20"}],["24",{"enabled":true,
 "id":"24"}],["51",{"enabled":true,
-"id":"51"}]]}},
+"id":"51"}],["54",{"enabled":true,
+"id":"54"}]]}},
 "windowTypes":{"map":{"__map":true,
-"values":[["1","code"],["7","code"],["12","code"],["16","code"],["20","code"],["24","code"],["51","code"]]}},
-"windows":["1","7","12","16","20","24","51"],
+"values":[["1","code"],["7","code"],["12","code"],["16","code"],["20","code"],["24","code"],["51","code"],["54","code"]]}},
+"windows":["1","7","12","16","20","24","51","54"],
 "zIndex":{"map":{"__map":true,
-"values":[["1",103],["7",112],["12",113],["16",110],["20",105],["24",111],["51",106]]}}}
+"values":[["1",106],["7",112],["12",103],["16",114],["20",105],["24",111],["51",110],["54",113]]}}}
 {__codeMap: true, value: [[`1`, `const init = (() => {
     const script = document.createElement("script");
     script.id = "markdownit";
@@ -85,9 +93,14 @@
     document.body.querySelector("#container")?.remove();
     document.body.appendChild(container);
     container.innerHTML = \`
-   <div id="result"></div>
-   <div id="separator"></div>
-   <div id="editorContainer"></div>
+    <div id="result"></div>
+    <div id="separator"></div>
+    <div id="editorContainer">
+      <div id="buttons">
+        <button class="menuButton" id="save">save</button>
+        <button class="menuButton" id="load">load</button>
+      </div>
+    </div>
 \`.trim();
     return {markdownit: promise, container};
 })();
@@ -159,6 +172,24 @@ container.querySelector("#editorContainer").appendChild(editor.dom);`],
   background-color: white;
   white-space: pre-wrap;
   overflow: scroll;
+
+  display: flex;
+  flex-direction: column;
+}
+
+#buttons {
+   display: flex;
+   justify-content: right;
+}
+
+.menuButton {
+  font-family: 'OpenSans-SemiBold';
+  color: black;
+  margin-left: 4px;
+  margin-right: 4px;
+  border-radius: 4px;
+  cursor: pointer;
+  border: 2px solid #555;
 }
 
 \`.trim();
@@ -322,4 +353,50 @@ const keyHandler = ((evt) => {
   //  console.log("scroll top before", result.scrollTop, found.getBoundingClientRect().top)
   result.scrollTop += found.getBoundingClientRect().top;
   // console.log("scroll top after", result.scrollTop)
-})(key);`]]}
+})(key);`],
+[`54`, `const save = Events.listener(container.querySelector("#save"), "click", (evt) => evt)
+const load = Events.listener(container.querySelector("#load"), "click", (evt) => evt)
+
+const _saver = ((editor, save) => {
+  debugger;
+  const data = editor.state.doc.toString();
+
+  const dataStr = "data:text/plain;charset=utf-8," + encodeURIComponent(data);
+  const div = document.createElement("a");
+  div.setAttribute("href", dataStr);
+  div.setAttribute("download", \`presentation.md\`);
+  div.click();
+})(editor, save);
+
+const loadData = (() => {
+  const input = document.createElement("div");
+  input.innerHTML = \`<input id="imageinput" type="file" accept=".md">\`;
+  const imageInput = input.firstChild;
+
+  imageInput.oncancel = () => imageInput.remove();
+  document.body.appendChild(imageInput);
+  imageInput.click();
+  return new Promise((resolve, reject) => {
+    imageInput.onchange = () => {
+      const file = imageInput.files[0];
+      if (!file) {imageInput.remove(); return;}
+      let reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.readAsArrayBuffer(file);
+    };
+  }).then((data) => {
+    imageInput.value = "";
+    return new TextDecoder("utf-8").decode(data);
+  });
+
+})(load);
+
+const _loader = ((loadData, editor) => {
+  editor.dispatch({
+    changes: {
+      from: 0,
+      to: editor.state.doc.length,
+      insert: loadData
+    }
+  });
+})(loadData, editor);`]]}
