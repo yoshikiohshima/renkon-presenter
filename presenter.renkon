@@ -5,40 +5,35 @@
 "type":"move",
 "width":530.5693771255451,
 "x":-672.9385205805022,
-"y":-346.2861174475163}],["7",{"height":375.5383521488265,
+"y":-346.2861174475163}],["7",{"height":729.13187819304,
 "id":"7",
 "type":"move",
-"width":673.5775227975352,
-"x":627.752471466846,
-"y":-350.106756994686}],["12",{"height":1509.800452892262,
+"width":739.3839626045246,
+"x":627.6004271136014,
+"y":-350.4026270874863}],["12",{"height":1509.800452892262,
 "id":"12",
 "type":"move",
 "width":626.5377424784541,
 "x":1456.291385079744,
-"y":-352.09405600108335}],["16",{"height":162.6336348920213,
-"id":"16",
-"type":"move",
-"width":647.2166649069342,
-"x":-84.30487765866869,
-"y":57.646389666422266}],["20",{"height":347.0888520378802,
+"y":-352.09405600108335}],["20",{"height":378.53737731844046,
 "id":"20",
-"type":"resize",
-"width":637.1751870914861,
-"x":-75.89175148857228,
-"y":-341.26333858230873}],["24",{"height":1301.1567654748303,
+"type":"move",
+"width":650.1770339473195,
+"x":-90.96057968716295,
+"y":-343.65495516577744}],["24",{"height":1301.1567654748303,
 "id":"24",
-"type":"resize",
+"type":"move",
 "width":688.1243303814214,
-"x":623.5661705702177,
-"y":76.88064794983097}],["51",{"height":1074.8485356554809,
+"x":625.7646497319973,
+"y":439.7858633035637}],["51",{"height":1074.8485356554809,
 "id":"51",
 "type":"move",
 "width":674.2043744610681,
-"x":-116.7190340827679,
-"y":288.1185297713136}],["54",{"height":891.2879516880103,
+"x":-90.09072573074512,
+"y":73.41135645575213}],["54",{"height":922.5632420455216,
 "id":"54",
 "type":"resize",
-"width":663.0255536124862,
+"width":667.143711505082,
 "x":2179.512993101045,
 "y":-353.48465933608566}]]}},
 "titles":{"map":{"__map":true,
@@ -48,9 +43,7 @@
 "state":false,
 "title":"Rendering"}],["12",{"id":"12",
 "state":false,
-"title":"CSS"}],["16",{"id":"16",
-"state":false,
-"title":"editorUpdate"}],["20",{"id":"20",
+"title":"CSS"}],["20",{"id":"20",
 "state":false,
 "title":"newEditor"}],["24",{"id":"24",
 "state":false,
@@ -64,17 +57,16 @@
 "values":[["1",{"enabled":true,
 "id":"1"}],["7",{"enabled":true,
 "id":"7"}],["12",{"enabled":true,
-"id":"12"}],["16",{"enabled":true,
-"id":"16"}],["20",{"enabled":true,
+"id":"12"}],["20",{"enabled":true,
 "id":"20"}],["24",{"enabled":true,
 "id":"24"}],["51",{"enabled":true,
 "id":"51"}],["54",{"enabled":true,
 "id":"54"}]]}},
 "windowTypes":{"map":{"__map":true,
-"values":[["1","code"],["7","code"],["12","code"],["16","code"],["20","code"],["24","code"],["51","code"],["54","code"]]}},
-"windows":["1","7","12","16","20","24","51","54"],
+"values":[["1","code"],["7","code"],["12","code"],["20","code"],["24","code"],["51","code"],["54","code"]]}},
+"windows":["1","7","12","20","24","51","54"],
 "zIndex":{"map":{"__map":true,
-"values":[["1",106],["7",112],["12",103],["16",114],["20",105],["24",111],["51",110],["54",113]]}}}
+"values":[["1",106],["7",114],["12",103],["20",110],["24",112],["51",105],["54",113]]}}}
 {__codeMap: true, value: [[`1`, `const init = (() => {
     const script = document.createElement("script");
     script.id = "markdownit";
@@ -121,10 +113,32 @@ const resultDiv = Behaviors.keep(((result, container) => {
   return div;
 })(result, container));
 
-const editor = newEditor("0", \`\`, callback, notify);
+const editor = newEditor("0", \`\`, callbackExt);
+const callbackExt = new window.CodeMirror.state.Compartment();
 
-const callback = (id, update) => notify[0]({id, update});
-const editorString = editorUpdate.update.state.doc.toString();
+const editorString = Events.observe((notify) => {
+  let lastText;
+  const callback = window.CodeMirror.EditorView.updateListener.of((viewUpdate) => {
+    const current = viewUpdate.state.doc.toString();
+    if (lastText === undefined || current !== lastText) {
+      if (lastText === undefined) {
+        lastText = null;
+      } else {
+        lastText = current;
+      }
+      notify(current);
+    }
+  });
+  editor.dispatch({
+    effects: callbackExt.reconfigure([callback])
+  });
+  return () => {
+    editor.dispatch({
+      effects: callbackExt.reconfigure([])
+    });    
+  }
+});
+
 container.querySelector("#editorContainer").appendChild(editor.dom);`],
 [`12`, `const css = \`
 #container, html, body {
@@ -207,26 +221,23 @@ container.querySelector("#editorContainer").appendChild(editor.dom);`],
     document.head.appendChild(sepStyle);
 })(css);
 `],
-[`16`, `const editorUpdate = Events.observe((callback) => {
-   notify[0] = (...v) => callback(...v);
-   return () => notify.shift();
-})
-const notify = [];`],
-[`20`, `const newEditor = (id, doc, callback) => {
-    const mirror = window.CodeMirror;
-    const editor = new mirror.EditorView({
-        doc: doc || \`# Hello, Renkon\`,
+[`20`, `const newEditor = (id, doc, ext) => {
+  const mirror = window.CodeMirror;
 
-        extensions: [
-            mirror.basicSetup,
-            mirror.EditorView.lineWrapping,
-            mirror.EditorView.updateListener.of((viewUpdate) => callback(id, viewUpdate)),
-            mirror.EditorView.editorAttributes.of({"class": "editor"}),
-            mirror.view.keymap.of([mirror.commands.indentWithTab])
-        ],
-    });
-    editor.dom.id = \`\${id}-editor\`;
-    return editor;
+  const editor = new mirror.EditorView({
+      doc: doc || \`# Hello, Renkon\`,
+
+      extensions: [
+          mirror.basicSetup,
+          mirror.EditorView.lineWrapping,
+          // mirror.EditorView.updateListener.of((viewUpdate) => callback(id, viewUpdate)),
+          ext.of([]),
+          mirror.EditorView.editorAttributes.of({"class": "editor"}),
+          mirror.view.keymap.of([mirror.commands.indentWithTab])
+      ],
+  });
+  editor.dom.id = \`\${id}-editor\`;
+  return editor;
 };
 `],
 [`24`, `const sepDown = Events.listener(
@@ -299,7 +310,6 @@ const moveCompute = Behaviors.select(
 const resize = Events.listener(window, "resize", (evt) => ({type: "resize"}));
 `],
 [`51`, `// const key = Events.listener(document.body, "keydown", keyHandler);
-
 
 const key = Events.observe((notify) => {
   const handler = evt => {
