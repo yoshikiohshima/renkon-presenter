@@ -20,10 +20,10 @@
 "type":"move",
 "width":650.1770339473195,
 "x":-90.96057968716295,
-"y":-343.65495516577744}],["24",{"height":1301.1567654748303,
+"y":-343.65495516577744}],["24",{"height":1385.0680622116668,
 "id":"24",
-"type":"move",
-"width":688.1243303814214,
+"type":"resize",
+"width":676.8069445003824,
 "x":625.7646497319973,
 "y":439.7858633035637}],["51",{"height":1074.8485356554809,
 "id":"51",
@@ -276,6 +276,7 @@ const moveCompute = Behaviors.select(
       const newX = move.clientX;
       const newRenkonWidth = Math.min(window.innerWidth - 8, Math.max(newX - 8, 0));
       const newEditorWidth = Math.max(window.innerWidth - 22 - newRenkonWidth, 60);
+      const showButton = newEditorWidth !== 60;
       const right = newEditorWidth === 60 ? -60 - 16 + (window.innerWidth - newX) : 0;
 
       document.head.querySelector("#separator-style").textContent = \`
@@ -287,6 +288,11 @@ const moveCompute = Behaviors.select(
   right: \${right}px;
 }
 
+#buttons {
+  visibility: \${showButton ? "visible" : "hidden"};
+}
+
+
 \`.trim();
       return move;
     }
@@ -295,8 +301,9 @@ const moveCompute = Behaviors.select(
   resize, (old, resize) => {
     const newX = window.innerWidth - 22;
     const newEditorWidth = 60;
+    const showButton = newEditorWidth !== 60;
     const right = -60;
-      document.head.querySelector("#separator-style").textContent = \`
+    document.head.querySelector("#separator-style").textContent = \`
 #result {
   width: \${newX}px;
 }
@@ -304,6 +311,10 @@ const moveCompute = Behaviors.select(
 #editorContainer {
   width: \${newEditorWidth}px;
   right: \${right}px;
+}
+
+#buttons {
+  visibility: \${showButton ? "visible" : "hidden"};
 }
 
 \`.trim();
