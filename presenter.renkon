@@ -1,8 +1,8 @@
 {"padTitle":"presenter",
 "positions":{"map":{"__map":true,
-"values":[["1",{"height":683.8798866117842,
+"values":[["1",{"height":697.2359837521559,
 "id":"1",
-"type":"move",
+"type":"resize",
 "width":530.5693771255451,
 "x":-672.9385205805022,
 "y":-346.2861174475163}],["7",{"height":729.13187819304,
@@ -10,10 +10,10 @@
 "type":"move",
 "width":739.3839626045246,
 "x":627.6004271136014,
-"y":-350.4026270874863}],["12",{"height":1509.800452892262,
+"y":-350.4026270874863}],["12",{"height":1565.8820052484193,
 "id":"12",
-"type":"move",
-"width":626.5377424784541,
+"type":"resize",
+"width":627.9781380534331,
 "x":1456.291385079744,
 "y":-352.09405600108335}],["20",{"height":378.53737731844046,
 "id":"20",
@@ -92,6 +92,7 @@
         <button class="menuButton" id="save">save</button>
         <button class="menuButton" id="load">load</button>
       </div>
+      <div id="editorContainer2"></div>
     </div>
 \`.trim();
     return {markdownit: promise, container};
@@ -139,7 +140,7 @@ const editorString = Events.observe((notify) => {
   }
 });
 
-container.querySelector("#editorContainer").appendChild(editor.dom);`],
+container.querySelector("#editorContainer2").appendChild(editor.dom);`],
 [`12`, `const css = \`
 #container, html, body {
   width: 100%;
@@ -185,15 +186,18 @@ container.querySelector("#editorContainer").appendChild(editor.dom);`],
   min-width: 0px;
   background-color: white;
   white-space: pre-wrap;
-  overflow: scroll;
-
   display: flex;
   flex-direction: column;
+}
+
+#editorContainer2 {
+  overflow: scroll;
 }
 
 #buttons {
    display: flex;
    justify-content: right;
+   margin-bottom: 6px;
 }
 
 .menuButton {
@@ -368,7 +372,6 @@ const keyHandler = ((evt) => {
 const load = Events.listener(container.querySelector("#load"), "click", (evt) => evt)
 
 const _saver = ((editor, save) => {
-  debugger;
   const data = editor.state.doc.toString();
 
   const dataStr = "data:text/plain;charset=utf-8," + encodeURIComponent(data);
