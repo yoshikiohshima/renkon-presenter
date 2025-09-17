@@ -2,35 +2,35 @@
 "positions":{"map":{"__map":true,
 "values":[["1",{"height":697.2359837521559,
 "id":"1",
-"type":"resize",
-"width":530.5693771255451,
-"x":-672.9385205805022,
-"y":-346.2861174475163}],["7",{"height":729.13187819304,
-"id":"7",
 "type":"move",
-"width":739.3839626045246,
-"x":627.6004271136014,
-"y":-350.4026270874863}],["12",{"height":1565.8820052484193,
+"width":530.5693771255451,
+"x":-779.3419458477209,
+"y":-352.5708833304911}],["7",{"height":1869.6637775251452,
+"id":"7",
+"type":"resize",
+"width":676.7803258040567,
+"x":-70.49899379863109,
+"y":-353.96374292994017}],["12",{"height":1565.8820052484193,
 "id":"12",
 "type":"resize",
 "width":627.9781380534331,
 "x":1456.291385079744,
-"y":-352.09405600108335}],["20",{"height":378.53737731844046,
+"y":-352.09405600108335}],["20",{"height":386.6328800704596,
 "id":"20",
 "type":"move",
-"width":650.1770339473195,
-"x":-90.96057968716295,
-"y":-343.65495516577744}],["24",{"height":1385.0680622116668,
+"width":662.874826241493,
+"x":-784.110653157341,
+"y":382.2996345819207}],["24",{"height":1490.659886379065,
 "id":"24",
 "type":"resize",
-"width":676.8069445003824,
-"x":625.7646497319973,
-"y":439.7858633035637}],["51",{"height":1074.8485356554809,
+"width":626.7241866735319,
+"x":684.5741482218567,
+"y":553.0520384190709}],["51",{"height":870.5568815517929,
 "id":"51",
 "type":"move",
-"width":674.2043744610681,
-"x":-90.09072573074512,
-"y":73.41135645575213}],["54",{"height":922.5632420455216,
+"width":601.2026639803189,
+"x":683.0335594555582,
+"y":-356.5481130988294}],["54",{"height":922.5632420455216,
 "id":"54",
 "type":"resize",
 "width":667.143711505082,
@@ -66,7 +66,7 @@
 "values":[["1","code"],["7","code"],["12","code"],["20","code"],["24","code"],["51","code"],["54","code"]]}},
 "windows":["1","7","12","20","24","51","54"],
 "zIndex":{"map":{"__map":true,
-"values":[["1",106],["7",114],["12",103],["20",110],["24",112],["51",105],["54",113]]}}}
+"values":[["1",110],["7",114],["12",103],["20",106],["24",115],["51",105],["54",113]]}}}
 {__codeMap: true, value: [[`1`, `const init = (() => {
     const script = document.createElement("script");
     script.id = "markdownit";
@@ -103,23 +103,84 @@ const md = resolved.markdownit({html: true});
 const container = resolved.container;
 const separator = container.querySelector("#separator");
 `],
-[`7`, `const result = md.render(editorString);
+[`7`, `const markdown = Behaviors.keep(md.render(editorString));
+const map = Behaviors.keep(md.parse(editorString));
+const hMap = map.filter((m) => m.type === "heading_open" && ["h1", "h2"].includes(m.tag));
+const sections = [...resultDiv.querySelectorAll(":is(h1, h2)")];
 
-const resultDiv = Behaviors.keep(((result, container) => {
+const currentLineUpdated = ((currentSectionUpdated, sections, hMap) => {
+  const index = sections.indexOf(currentSectionUpdated);
+  return hMap[index].map?.[1];
+})(currentSectionUpdated, sections, hMap);
+
+const divTarget = Events.receiver();
+
+const divGoto = ((divTarget) => {
+  const result = container.querySelector("#result");
+  if (!result) {return;}
+  const resultRect = divTarget.getBoundingClientRect();
+  result.scrollTop += divTarget.getBoundingClientRect().top;
+  return divTarget;
+})(divTarget);
+
+const goto = ((currentLineUpdated, editor) => {
+  const line = editor.state.doc.line(currentLineUpdated);
+  /*
+  I want to show the selected line at the top of the editor, but not sure how to do that.
+  editor.dispatch({
+    selection: { head: editor.state.doc.length, anchor: editor.state.doc.length },
+    scrollIntoView: true
+  });
+  */
+
+  editor.dispatch({
+    selection: { head: line.from, anchor: line.from },
+    scrollIntoView: true
+  });
+})(currentLineUpdated, editor);
+
+const resultDiv = Behaviors.keep(((markdown, container) => {
   const div = document.createElement("div");
   div.id = "renkon";
   container.querySelector("#renkon")?.remove();
   container.querySelector("#result").appendChild(div);
-  div.innerHTML = result;
+  div.innerHTML = markdown;
   return div;
-})(result, container));
+})(markdown, container));
 
 const editor = newEditor("0", \`\`, callbackExt);
 const callbackExt = new window.CodeMirror.state.Compartment();
 
+const numberUpdated = Events.receiver();
+const currentSection = Behaviors.collect(null, currentSectionUpdated, (_prev, currentSectionUpdated) => currentSectionUpdated);
+
+const newSelectedDiv = ((hMap, sections, numberUpdated) => {
+  for (let i = 0; i < hMap.length - 2; i++) {
+    const prev = hMap[i].map;
+    const next = hMap[i + 1].map;
+    if (prev[0] <= numberUpdated && numberUpdated < next[0]) {
+      return sections[i];
+    }
+  }
+})(hMap, sections, numberUpdated);
+
+const anotherGoto = ((newSelectedDiv, currentSection) => {
+  if (newSelectedDiv === currentSection) {return;}
+  Events.send(divTarget, newSelectedDiv);
+})(newSelectedDiv, currentSection);
+
 const editorString = Events.observe((notify) => {
   let lastText;
   const callback = window.CodeMirror.EditorView.updateListener.of((viewUpdate) => {
+    if (viewUpdate.selectionSet) {
+      const from = viewUpdate.state.selection.main?.from;
+      const line = viewUpdate.state.doc.lineAt(from);
+      if (line) {
+        const number = line.number;
+        Events.send(numberUpdated, number);
+      }
+      return;
+    }
     const current = viewUpdate.state.doc.toString();
     if (lastText === undefined || current !== lastText) {
       if (lastText === undefined) {
@@ -337,18 +398,10 @@ const key = Events.observe((notify) => {
   return () => document.body.removeEventListener("keydown", handler);
 });
 
-
-const keyHandler = ((evt) => {
+const currentSectionUpdated = ((evt, sections) => {
   if (evt.target !== document.body) {return;}
 
   if (evt.key !== "ArrowUp" && evt.key !== "ArrowDown") {return;}
-
-  const sections = [
-    ...resultDiv.querySelectorAll("h1"),
-    ...resultDiv.querySelectorAll("h2")
-  ];
-
-  sections.sort((a, b) => a.getBoundingClientRect().top - b.getBoundingClientRect().top);
   let found;
   if (evt.key === "ArrowDown") {
     for (const section of sections) {
@@ -372,13 +425,10 @@ const keyHandler = ((evt) => {
 
   evt.preventDefault();
 
-  const result = container.querySelector("#result");
-  if (!result) {return;}
-  const resultRect = result.getBoundingClientRect();
-  //  console.log("scroll top before", result.scrollTop, found.getBoundingClientRect().top)
-  result.scrollTop += found.getBoundingClientRect().top;
-  // console.log("scroll top after", result.scrollTop)
-})(key);`],
+  Events.send(divTarget, found);
+
+  return found;
+})(key, sections);`],
 [`54`, `const save = Events.listener(container.querySelector("#save"), "click", (evt) => evt)
 const load = Events.listener(container.querySelector("#load"), "click", (evt) => evt)
 
