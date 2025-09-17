@@ -5,10 +5,10 @@
 "type":"resize",
 "width":472.36024588703503,
 "x":-779.3419458477209,
-"y":-352.5708833304911}],["7",{"height":986.7900447156622,
+"y":-352.5708833304911}],["7",{"height":952.6284852942705,
 "id":"7",
-"type":"move",
-"width":644.9002026624214,
+"type":"resize",
+"width":612.8690730196965,
 "x":-210.4444065501196,
 "y":-355.4979434635725}],["12",{"height":1565.8820052484193,
 "id":"12",
@@ -120,7 +120,6 @@ const resultDiv = Behaviors.keep(((markdown, container) => {
 const editor = newEditor("0", \`\`, callbackExt);
 const callbackExt = new window.CodeMirror.state.Compartment();
 
-
 const editorString = Events.observe((notify) => {
   let lastText;
   const callback = window.CodeMirror.EditorView.updateListener.of((viewUpdate) => {
@@ -131,7 +130,6 @@ const editorString = Events.observe((notify) => {
         const number = line.number;
         Events.send(numberUpdated, number);
       }
-      return;
     }
     const current = viewUpdate.state.doc.toString();
     if (lastText === undefined || current !== lastText) {
