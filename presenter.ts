@@ -65,7 +65,14 @@ export function rendering(md:any, container:any, numberUpdated:number) {
   const divTarget:HTMLElement = Events.receiver<HTMLElement>();
 
   const markdown = Behaviors.keep(md.render(editorString));
-  const map = Behaviors.keep(md.parse(editorString));
+  const map = ((editorString) => {
+    let result = [];
+    try {
+      result = Behaviors.keep(md.parse(editorString));
+    }
+    return result;
+  })(editorString);
+    
   const hMap = map.filter((m) => m.type === "heading_open" && ["h1", "h2"].includes(m.tag));
   const sections = [...resultDiv.querySelectorAll(":is(h1, h2)")];
 
