@@ -70,6 +70,7 @@ export function rendering(md:any, container:any, numberUpdated:number) {
     try {
       result = Behaviors.keep(md.parse(editorString));
     }
+    catch (e) {}
     return result;
   })(editorString);
     
