@@ -56,7 +56,7 @@ declare class EventsInterface {
     or(...variables:any[]):any;
     some(...variables:any[]):any[];
     collect<I, T>(init:I|Promise<I>, variable:T, updater: (c:I, v:T) => I):I;
-    select<I>(init:I|Promise<I>, ...pairs:Array<[any, (c:I, v:any) => I]>):I;
+    select<I>(init:I|Promise<I>, ...args:Array<any|((c:I, v:any) => I)>):I;
     send<T>(variable:T, value:T):void;
     receiver<T>():T;
     observe(callback:(notifier:(v:any) => void) => () => void):() => void;

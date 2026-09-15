@@ -9265,7 +9265,8 @@ function detype(input) {
   });
   const output = new Sourcemap(input).trim();
   removeTypeNode(output, node);
-  return String(output);
+  const result2 = String(output);
+  return result2;
 }
 function removeTypeNode(output, node, parent) {
   if (Array.isArray(node)) {
@@ -9274,7 +9275,15 @@ function removeTypeNode(output, node, parent) {
   }
   if (typeof node === "object" && node !== null && typeof node.type === "string") {
     if (node.type.startsWith("TS")) {
-      output.delete(node.start, node.end);
+      if (node.type === "TSAsExpression") {
+        removeTypeNode(output, node.expression, node);
+        output.delete(node.expression.end, node.typeAnnotation.end);
+      } else if (node.type === "TSNonNullExpression") {
+        removeTypeNode(output, node.expression, node);
+        output.delete(node.end - 1, node.end);
+      } else {
+        output.delete(node.start, node.end);
+      }
       return;
     }
     if ((parent == null ? void 0 : parent.type) === "Program" && node.type === "ImportDeclaration") {
@@ -9644,7 +9653,7 @@ function rewriteRenkonCalls(output, body) {
     }
   });
 }
-const version$1 = "0.11.1";
+const version$1 = "0.11.2";
 const packageJson = {
   version: version$1
 };

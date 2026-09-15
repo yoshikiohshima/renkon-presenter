@@ -1,4 +1,5 @@
 import {Events, Behaviors} from "./renkon-core";
+type moveFunc = (evt:PointerEvent) => PointerEvent;
 
 export function initialization() {
   const init = (() => {
@@ -42,7 +43,7 @@ export function initialization() {
 
 export function newEditorNodes() {
   const newEditor = (id:string, doc:string, ext:any) => {
-    const mirror = window.CodeMirror;
+    const mirror = (window as any).CodeMirror;
 
     const editor = new mirror.EditorView({
       doc: doc || `# Hello, Renkon`,
@@ -64,34 +65,9 @@ export function newEditorNodes() {
 export function rendering(md:any, container:any, numberUpdated:number) {
   const divTarget:HTMLElement = Events.receiver<HTMLElement>();
 
-  const markdown = Behaviors.keep(md.render(editorString));
-  const map = ((editorString) => {
-    let result = [];
-    try {
-      result = Behaviors.keep(md.parse(editorString));
-    }
-    catch (e) {}
-    return result;
-  })(editorString);
-    
-  const hMap = map.filter((m) => m.type === "heading_open" && ["h1", "h2"].includes(m.tag));
-  const sections = [...resultDiv.querySelectorAll(":is(h1, h2)")];
-
-  const resultDiv = Behaviors.keep(((markdown, container) => {
-    const div = document.createElement("div");
-    div.id = "renkon";
-    container.querySelector("#renkon")?.remove();
-    container.querySelector("#result").appendChild(div);
-    div.innerHTML = markdown;
-    return div;
-  })(markdown, container));
-
-  const editor = newEditor("0", ``, callbackExt);
-  const callbackExt = new window.CodeMirror.state.Compartment();
-
   const editorString = Events.observe((notify) => {
     let lastText:string|null|undefined;
-    const callback = window.CodeMirror.EditorView.updateListener.of((viewUpdate) => {
+    const callback = (window as any).CodeMirror.EditorView.updateListener.of((viewUpdate) => {
       if (viewUpdate.selectionSet) {
         const from = viewUpdate.state.selection.main?.from;
         const line = viewUpdate.state.doc.lineAt(from);
@@ -119,6 +95,31 @@ export function rendering(md:any, container:any, numberUpdated:number) {
       });    
     }
   });
+
+  const markdown = Behaviors.keep(md.render(editorString));
+  const map = ((editorString) => {
+    let result = [];
+    try {
+      result = Behaviors.keep(md.parse(editorString));
+    }
+    catch (e) {}
+    return result;
+  })(editorString);
+    
+  const hMap = map.filter((m) => m.type === "heading_open" && ["h1", "h2"].includes(m.tag));
+  const sections = [...resultDiv.querySelectorAll(":is(h1, h2)")];
+
+  const resultDiv = Behaviors.keep(((markdown, container) => {
+    const div = document.createElement("div");
+    div.id = "renkon";
+    container.querySelector("#renkon")?.remove();
+    container.querySelector("#result").appendChild(div);
+    div.innerHTML = markdown;
+    return div;
+  })(markdown, container));
+
+  const editor = newEditor("0", ``, callbackExt);
+  const callbackExt = new (window as any).CodeMirror.state.Compartment();
 
   container.querySelector("#editorContainer2").appendChild(editor.dom);
   return {hMap, editorString, sections, divTarget};
@@ -171,7 +172,7 @@ export function scroll(hMap:any, sections:HTMLElement[], divTarget:HTMLElement, 
   })(key, sections);
 
   const currentLineUpdated = ((currentSectionUpdated, sections, hMap) => {
-    const index = sections.indexOf(currentSectionUpdated);
+    const index = sections.indexOf(currentSectionUpdated!);
     return hMap[index].map?.[1];
   })(currentSectionUpdated, sections, hMap);
 
@@ -198,7 +199,7 @@ export function scroll(hMap:any, sections:HTMLElement[], divTarget:HTMLElement, 
     });
   })(currentLineUpdated, editor);
 
-  const currentSection = Behaviors.collect<null|HTMLElement, HTMLElement>(null, currentSectionUpdated, (_prev, currentSectionUpdated) => currentSectionUpdated);
+  const currentSection = Behaviors.collect<null|HTMLElement, HTMLElement>(null, currentSectionUpdated!, (_prev, currentSectionUpdated) => currentSectionUpdated);
 
   const newSelectedDiv = ((hMap, sections, numberUpdated) => {
     for (let i = 0; i < hMap.length - 2; i++) {
@@ -225,7 +226,7 @@ export function separator(separator:HTMLElement) {
 
   const down = Events.collect<undefined|{type:string, x:number}, PointerEvent>(undefined, sepDown, (old, evt) => {
     if (evt.isPrimary) {
-      evt.target.setPointerCapture(evt.pointerId);
+      (evt.target as HTMLElement).setPointerCapture(evt.pointerId);
     }
     return {type: "sepDown", x: evt.clientX};
   });
@@ -243,17 +244,17 @@ export function separator(separator:HTMLElement) {
 
   const _sepMove = Events.listener<(move:any)=>void>(separator, "pointermove", moveCompute);
 
-  const moveCompute = Behaviors.select(
+  const moveCompute:moveFunc = Behaviors.select<moveFunc>(
     evt => evt,
-    down, (_old, down) => {
-      return (move) => {
+    down, (_old:moveFunc, down:{type:string, x:number}) => {
+      return (move:PointerEvent) => {
         const newX = move.clientX;
         const newRenkonWidth = Math.min(window.innerWidth - 8, Math.max(newX - 8, 0));
         const newEditorWidth = Math.max(window.innerWidth - 22 - newRenkonWidth, 60);
         const showButton = newEditorWidth !== 60;
         const right = newEditorWidth === 60 ? -60 - 16 + (window.innerWidth - newX) : 0;
 
-        document.head.querySelector("#separator-style").textContent = `
+        document.head.querySelector("#separator-style")!.textContent = `
 #result {
   width: ${newRenkonWidth}px;
 }
@@ -277,7 +278,7 @@ export function separator(separator:HTMLElement) {
       const newEditorWidth = 60;
       const showButton = newEditorWidth !== 60;
       const right = -60;
-      document.head.querySelector("#separator-style").textContent = `
+      document.head.querySelector("#separator-style")!.textContent = `
 #result {
   width: ${newX}px;
 }
