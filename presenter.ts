@@ -20,7 +20,7 @@ export function initialization() {
     document.body.querySelector("#container")?.remove();
     document.body.appendChild(container);
     container.innerHTML = `
-    <div id="result"></div>
+    <div id="presenter-result"></div>
     <div id="separator"></div>
     <div id="editorContainer">
       <div id="buttons">
@@ -113,7 +113,7 @@ export function rendering(md:any, container:any, numberUpdated:number) {
     const div = document.createElement("div");
     div.id = "renkon";
     container.querySelector("#renkon")?.remove();
-    container.querySelector("#result").appendChild(div);
+    container.querySelector("#presenter-result").appendChild(div);
     div.innerHTML = markdown;
     return div;
   })(markdown, container));
@@ -177,7 +177,7 @@ export function scroll(hMap:any, sections:HTMLElement[], divTarget:HTMLElement, 
   })(currentSectionUpdated, sections, hMap);
 
   const divGoto = ((divTarget) => {
-    const result = container.querySelector("#result");
+    const result = container.querySelector("#presenter-result");
     if (!result) {return;}
     result.scrollTop += divTarget.getBoundingClientRect().top;
     return divTarget;
@@ -255,7 +255,7 @@ export function separator(separator:HTMLElement) {
         const right = newEditorWidth === 60 ? -60 - 16 + (window.innerWidth - newX) : 0;
 
         document.head.querySelector("#separator-style")!.textContent = `
-#result {
+#presenter-result {
   width: ${newRenkonWidth}px;
 }
 #editorContainer {
@@ -279,7 +279,7 @@ export function separator(separator:HTMLElement) {
       const showButton = newEditorWidth !== 60;
       const right = -60;
       document.head.querySelector("#separator-style")!.textContent = `
-#result {
+#presenter-result {
   width: ${newX}px;
 }
 
@@ -313,7 +313,7 @@ const css = `
   display: flex;
 }
 
-#result {
+#presenter-result {
   height: 100%;
   width: calc(100% - 220px);
   overflow: scroll;
