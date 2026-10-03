@@ -389,8 +389,8 @@ const css = `
 }
 
 export function saveAndLoad(container:HTMLElement, editor:any) {
-  const save = Events.listener(container.querySelector("#save"), "click", (evt) => evt)
-  const load = Events.listener(container.querySelector("#load"), "click", (evt) => evt)
+  const save = Events.listener(container.querySelector("#save")!, "click", (evt) => evt)
+  const load = Events.listener(container.querySelector("#load")!, "click", (evt) => evt)
 
   const _saver = ((editor, save) => {
     const data = editor.state.doc.toString();
@@ -402,24 +402,25 @@ export function saveAndLoad(container:HTMLElement, editor:any) {
     div.click();
   })(editor, save);
 
-  const loadData = (() => {
+  const loadData = ((_) => {
     const input = document.createElement("div");
     input.innerHTML = `<input id="imageinput" type="file" accept=".md">`;
-    const imageInput = input.firstChild;
+    const imageInput = input.firstChild as HTMLInputElement;
 
     imageInput.oncancel = () => imageInput.remove();
     document.body.appendChild(imageInput);
     imageInput.click();
-    return new Promise((resolve, reject) => {
+    return new Promise<ArrayBuffer>((resolve, reject) => {
       imageInput.onchange = () => {
-        const file = imageInput.files[0];
+        const file = imageInput.files![0];
         if (!file) {imageInput.remove(); return;}
         let reader = new FileReader();
-        reader.onload = () => resolve(reader.result);
+        reader.onload = () => resolve(reader.result as ArrayBuffer);
         reader.readAsArrayBuffer(file);
       };
-    }).then((data) => {
+    }).then((data:ArrayBuffer) => {
       imageInput.value = "";
+      imageInput.remove();
       return new TextDecoder("utf-8").decode(data);
     });
 
